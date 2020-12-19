@@ -1,15 +1,28 @@
 {
+  "name": "GitHub CSS Sync",
+  "description": "Automatically push your color variables to developers by opening a pull request in GitHub. Developers can configure their preferred language (CSS native, SASS, LESS, or Stylus) through a config file in their repo.",
   "$schema": "https://raw.githubusercontent.com/sketch-hq/SketchAPI/develop/docs/sketch-plugin-manifest-schema.json",
   "icon": "icon.png",
+  "author": "Zach Scott",
+  "homepage": "https://github.com/zacharytscott/sketch-github-sync",
+  "version": "0.1.0",
   "commands": [
     {
-      "name": "my-command",
-      "identifier": "sketch-github-sync.my-command-identifier",
-      "script": "./my-command.js"
+      "name": "Configure...",
+      "identifier": "sketch-github-sync.configure",
+      "script": "./configure.js"
+    },
+    {
+      "name": "Push",
+      "identifier": "sketch-github-sync.push",
+      "script": "./push.js"
     }
   ],
   "menu": {
-    "title": "sketch-github-sync",
-    "items": ["sketch-github-sync.my-command-identifier"]
+    "title": "GitHub CSS Sync",
+    "items": [
+      "sketch-github-sync.configure",
+      "sketch-github-sync.push"
+    ]
   }
 }
