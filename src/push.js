@@ -10,6 +10,7 @@ import { getTokenSetting, getRepoUrlSetting } from './settingUtils';
 // TODO: if config file doesn't exist, use defaults and warn!
 // TODO: check for changes when the user clicks the sync button!
 // TODO: we could use a recognizable comment to ensure we only overwrite a portion of the file, never the whole thing.
+// TODO: include link in PR message
 
 function convertSelectedDocumentContents(format) {
   const doc = dom.Document.getSelectedDocument();
@@ -44,6 +45,8 @@ export default async function() {
     sketch.UI.message('Creating a Pull Request...');
 
     await attemptPullRequest(repoUrl, token);
+
+    sketch.UI.message('Pull Request created!');
   } else {
     sketch.UI.message('Please configure your GitHub settings by clicking "configure" in the plugin menu. 😀');
   }

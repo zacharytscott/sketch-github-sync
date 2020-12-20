@@ -1,8 +1,6 @@
 import base64 from 'base-64';
 import { handleError } from './errorUtils';
 
-// TODO: better error handling!
-
 const GITHUB_DOMAIN = "github.com/";
 const GITHUB_API_URL = "https://api.github.com/repos";
 const DEFAULT_CONFIG_PATH = 'orbital.conf.json';
@@ -33,12 +31,9 @@ function getDefaultGitHeaders(token) {
 
 // TODO: break this up
 async function createBranch(repoApiURL, token, base) {
-    console.log('createBranch', repoApiURL, token, base);
     const repoGitRefUrl = `${repoApiURL}/git/refs`;
 
-    const getRefsResponse = await fetch(repoGitRefUrl, {
-        headers: getDefaultGitHeaders(token)
-    });
+    const getRefsResponse = await makeGitHubRequest(repoGitRefUrl, token);
 
     const refs = await getRefsResponse.json();
 
@@ -51,11 +46,7 @@ async function createBranch(repoApiURL, token, base) {
         sha: newBranchSha
     };
 
-    await fetch(repoGitRefUrl, {
-        method: 'POST',
-        headers: getDefaultGitHeaders(token),
-        body: JSON.stringify(branchBody)
-    });
+    await makeGitHubRequest(repoGitRefUrl, token, branchBody, 'POST');
 
     return {
         newBranchName,
@@ -73,15 +64,7 @@ async function createPR(repoApiURL, token, base, newBranchName) {
         base
     };
 
-    try {
-        await fetch(repoPullUrl, {
-            method: 'POST',
-            headers: getDefaultGitHeaders(token),
-            body: JSON.stringify(pullBody)
-        });
-    } catch (error) {
-        console.log(error)
-    }
+    await makeGitHubRequest(repoPullUrl, token, pullBody, 'POST');
 }
 
 async function createBlob(repoApiURL, token, content) {
@@ -97,17 +80,24 @@ async function createBlob(repoApiURL, token, content) {
     return blobResponseJson.sha;
 }
 
-// TODO: all requests should use this
-function makeGitHubRequest(url, token, body, method = 'GET') {
+async function makeGitHubRequest(url, token, body, method = 'GET') {
     const stringifiedBody = body
         ? JSON.stringify(body)
         : null;
 
-    return fetch(url, {
+    const res = await fetch(url, {
         headers: getDefaultGitHeaders(token),
         method,
         body: stringifiedBody
     });
+
+    if (!res.ok) {
+        const errorMessage = `${res.status}: ${res.statusText}`;
+        handleError(errorMessage);
+        throw errorMessage;
+    }
+
+    return res;
 }
 
 async function getTreeSha(repoApiURL, token, commitHash) {
