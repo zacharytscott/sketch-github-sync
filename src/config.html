@@ -1,16 +1,20 @@
+<h1>GitHub CSS Sync</h1>
 <label for="token">GitHub token:</label>
 <input id="token" type="text" />
 <label for="url">Repo URL:</label>
 <input id="url" type="text" />
-<p id="error-message"></p>
 
 <button id="save" onClick="save()" disabled>Save</button>
+
+<p id="error-message"></p>
 
 <script>
     const tokenEl = document.getElementById('token');
     const urlEl = document.getElementById('url');
     const buttonEl = document.getElementById('save');
     const errorMessageEl = document.getElementById('error-message');
+
+    let validationTimeoutId;
 
     window.setSettings = function(settings) {
         tokenEl.value = settings.token;
@@ -40,8 +44,32 @@
         window.postMessage('settingsSaved', getTokenAndRepoUrl());
     }
 
-    urlEl.addEventListener('focusout', event => {
-        errorMessageEl.innerText = 'loading';
-        window.postMessage('validationRequested', getTokenAndRepoUrl());
+    urlEl.addEventListener('input', event => {
+        window.clearTimeout(validationTimeoutId);
+
+        validationTimeoutId = window.setTimeout(() => {
+                errorMessageEl.innerText = 'loading';
+                window.postMessage('validationRequested', getTokenAndRepoUrl());
+            }, 1000);
     });
 </script>
+
+<style >
+    body {
+        color: white;
+        font-family: sans-serif;
+        display: flex;
+        margin: 10% 30%;
+        flex-direction: column;
+    }
+
+    h1 {
+        font-size: 40px;
+        font-family: Noteworthy;
+        text-align: center;
+    }
+
+    label {
+        margin-top: 5px;
+    }
+</style>

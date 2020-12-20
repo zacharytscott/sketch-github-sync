@@ -4,7 +4,8 @@ import { validate } from './gitHubUtils';
 
 export default function() {
   const options = {
-    identifier: 'config'
+    identifier: 'config',
+    alwaysOnTop: true
   };
 
   const browserWindow = new BrowserWindow(options);
