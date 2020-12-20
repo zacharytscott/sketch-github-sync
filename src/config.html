@@ -2,24 +2,46 @@
 <input id="token" type="text" />
 <label for="url">Repo URL:</label>
 <input id="url" type="text" />
+<p id="error-message"></p>
 
-<button onClick="save()">Save</button>
+<button id="save" onClick="save()" disabled>Save</button>
 
 <script>
     const tokenEl = document.getElementById('token');
     const urlEl = document.getElementById('url');
+    const buttonEl = document.getElementById('save');
+    const errorMessageEl = document.getElementById('error-message');
 
     window.setSettings = function(settings) {
-        console.log('settings in window', settings);
-
         tokenEl.value = settings.token;
         urlEl.value = settings.repoUrl;
     };
 
-    function save() {
-        window.postMessage('settingsSaved', {
+    window.settingsValidated = function(results) {
+        if (results.ok) {
+            errorMessageEl.innerText = "You're good to go!";
+
+            buttonEl.removeAttribute('disabled');
+        } else {
+            errorMessageEl.innerText = results.errorMessage;
+
+            buttonEl.setAttribute('disabled', 'disabled');
+        }
+    }
+
+    function getTokenAndRepoUrl() {
+        return {
             token: tokenEl.value,
             repoUrl: urlEl.value
-        });
+        };
     }
+
+    function save() {
+        window.postMessage('settingsSaved', getTokenAndRepoUrl());
+    }
+
+    urlEl.addEventListener('focusout', event => {
+        errorMessageEl.innerText = 'loading';
+        window.postMessage('validationRequested', getTokenAndRepoUrl());
+    });
 </script>

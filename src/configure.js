@@ -1,5 +1,6 @@
 import BrowserWindow from 'sketch-module-web-view';
 import Settings from 'sketch/settings';
+import { validate } from './gitHubUtils';
 
 export default function() {
   const options = {
@@ -23,5 +24,13 @@ export default function() {
     Settings.setSettingForKey('repoUrl', settings.repoUrl);
 
     browserWindow.close();
+  });
+
+  browserWindow.webContents.on('validationRequested', settings => {
+    validate(settings.repoUrl, settings.token)
+      .then(results => {
+        browserWindow.webContents
+        .executeJavaScript(`settingsValidated(${JSON.stringify(results)})`);
+      });
   });
 }

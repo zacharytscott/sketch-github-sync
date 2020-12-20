@@ -15,7 +15,7 @@ function getRepoName(repoUrl) {
     return repoUrl.substring(repoUrl.lastIndexOf('/') + 1);
 }
 
-function convertToApiUrl(repoUrl) {
+export function convertToApiUrl(repoUrl) {
     const owner = getOwner(repoUrl);
     const repoName = getRepoName(repoUrl);
 
@@ -80,7 +80,8 @@ async function createBlob(repoApiURL, token, content) {
     return blobResponseJson.sha;
 }
 
-async function makeGitHubRequest(url, token, body, method = 'GET') {
+// TODO:  break into two functions, remove flag
+async function makeGitHubRequest(url, token, body, method = 'GET', handleError = true) {
     const stringifiedBody = body
         ? JSON.stringify(body)
         : null;
@@ -91,9 +92,11 @@ async function makeGitHubRequest(url, token, body, method = 'GET') {
         body: stringifiedBody
     });
 
-    if (!res.ok) {
+    if (handleError && !res.ok) {
         const errorMessage = `${res.status}: ${res.statusText}`;
+
         handleError(errorMessage);
+
         throw errorMessage;
     }
 
@@ -154,18 +157,22 @@ async function updateBranchHead(repoApiURL, token, newBranchName, newCommitSha) 
     await makeGitHubRequest(repoGitRefUrl, token, body, 'PATCH');
 }
 
-export async function getRepoConfigFile(repoURL, token) {
-    const repoApiURL = convertToApiUrl(repoURL);
+export async function getRepoConfigFile(repoUrl, token) {
+    const repoApiURL = convertToApiUrl(repoUrl);
     const repoContentsUrl = `${repoApiURL}/contents/${DEFAULT_CONFIG_PATH}`;
     
+    const getConfigResponse = await makeGitHubRequest(repoContentsUrl, token);
+    const getConfigJSON = await getConfigResponse.json();
+    const decodedContent = base64.decode(getConfigJSON.content);
+
+    return JSON.parse(decodedContent);
+}
+
+export async function getRepoConfigFileAndHandleErrors(repoUrl, token) {
     try {
-        const getConfigResponse = await makeGitHubRequest(repoContentsUrl, token);
-        const getConfigJSON = await getConfigResponse.json();
-        const decodedContent = base64.decode(getConfigJSON.content);
-    
-        return JSON.parse(decodedContent);
+        return await getRepoConfigFile(repoUrl, token);
     } catch(error) {
-        handleError('A config file was not found in the repo.');
+        handleError(`There was an issue parsing the config file: ${error}`);
     }
 }
 
@@ -189,4 +196,40 @@ export async function pushAndOpenPullRequest(repoUrl, token, contents, baseBranc
     await updateBranchHead(repoApiURL, token, newBranchName, newCommitSha);
 
     return await createPR(repoApiURL, token, baseBranch, newBranchName);
+}
+
+// TODO: this is too big
+export async function validate(url, token) {
+    const repoApiURL = convertToApiUrl(url);
+
+    const results = await makeGitHubRequest(repoApiURL, token, null, 'GET', false);
+
+    if (!results.ok) {
+        return {
+            ok: false,
+            errorMessage: "Hmm, we can't find that repo. It may not exist, or you may not have access to it."
+        }
+    }
+
+    const resultsJSON = await results.json();
+
+    if (!resultsJSON.permissions.push) {
+        return {
+            ok: false,
+            errorMessage: "Uh oh! It looks like you don't have permissions to push to this repo. Contact your GitHub admin for access."
+        }
+    }
+
+    // TODO: add option for them to configure without the file
+    try {
+        await getRepoConfigFile(url, token);
+    } catch (error) {
+        return {
+            ok: false,
+            errorMessage: `This repo does not have a file named ${DEFAULT_CONFIG_PATH} in its root. Ask the code maintainers if they could create one for you. 😉`
+        }
+    }
+
+
+    return { ok: true };
 }

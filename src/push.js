@@ -2,7 +2,7 @@ import sketch from 'sketch';
 import dom from 'sketch/dom';
 import async from 'sketch/async';
 import { getConvertedContents, getFileFormat } from './cssUtils';
-import { getRepoConfigFile, pushAndOpenPullRequest } from './gitHubUtils';
+import { getRepoConfigFileAndHandleErrors, pushAndOpenPullRequest } from './gitHubUtils';
 import { getTokenSetting, getRepoUrlSetting } from './settingUtils';
 
 // TODO: better error handling
@@ -22,7 +22,7 @@ function convertSelectedDocumentContents(format) {
 async function attemptPullRequest(repoUrl, token) {
   const fiber = async.createFiber();
 
-  const configFile = await getRepoConfigFile(repoUrl, token);
+  const configFile = await getRepoConfigFileAndHandleErrors(repoUrl, token);
 
   const fileFormat = getFileFormat(configFile.globalStylesFilePath);
 
