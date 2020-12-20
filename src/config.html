@@ -1,0 +1,25 @@
+<label for="token">GitHub token:</label>
+<input id="token" type="text" />
+<label for="url">Repo URL:</label>
+<input id="url" type="text" />
+
+<button onClick="save()">Save</button>
+
+<script>
+    const tokenEl = document.getElementById('token');
+    const urlEl = document.getElementById('url');
+
+    window.setSettings = function(settings) {
+        console.log('settings in window', settings);
+
+        tokenEl.value = settings.token;
+        urlEl.value = settings.repoUrl;
+    };
+
+    function save() {
+        window.postMessage('settingsSaved', {
+            token: tokenEl.value,
+            repoUrl: urlEl.value
+        });
+    }
+</script>

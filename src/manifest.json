@@ -13,10 +13,10 @@
       "script": "./configure.js"
     },
     {
-      "name": "Push",
+      "name": "Push and open a Pull Request",
       "identifier": "sketch-github-sync.push",
       "script": "./push.js"
-    }
+    } 
   ],
   "menu": {
     "title": "GitHub CSS Sync",
