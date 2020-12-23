@@ -1,7 +1,19 @@
 # sketch-github-sync
+This ultimate goal of this plugin is to act as a bridge between designers and developers. With the push of a button, you can open a PR in your GitHub repo which contains your Sketch global styles. When you tweak, add, or remove colors from your palette, for example, developers will get a pull request containing CSS which defines these colors. This CSS is automatically translated to the appropriate CSS flavor (native CSS with variables, Sass, Less, or Stylus). The developers just have to merge the PR -- and bam! You've got the correct global styles.
+
+## How does it work?
+
+Designers just have to enter their GitHub credentials and the url of the repo a single time in Sketch. As they work, they press the sync button. When they sync, we find and read the config file in the target repo and use that to determine the file we need to output. Designers don't even have to worry about the specific CSS flavor -- it's detected automatically using this config file.
+
+This means that designers get the assurance that developers have seen their changes, and developers get to be in charge of the file format and location, CSS formatting, syntax, etc.
+
+Basically, designers and developers only have to care about the things they like to do!
+
+## What can it do?
+
+Currently, the plugin is in the proof-of-concept. It only exports globally defined color variables at the moment. The plan is to add gradients, text styles, and anything else that would be useful!
 
 ## Installation
-
 - [Download](../../releases/latest/download/sketch-github-sync.sketchplugin.zip) the latest release of the plugin
 - Un-zip
 - Double-click on sketch-github-sync.sketchplugin
