@@ -1,4 +1,7 @@
 # sketch-github-sync
+
+**Note: this plugin is in very early stages. It currently exports only colors.**
+
 This ultimate goal of this plugin is to act as a bridge between designers and developers. With the push of a button, you can open a PR in your GitHub repo which contains your Sketch global styles. When you tweak, add, or remove colors from your palette, for example, developers will get a pull request containing CSS which defines these colors. This CSS is automatically translated to the appropriate CSS flavor (native CSS with variables, Sass, Less, or Stylus). The developers just have to merge the PR -- and bam! You've got the correct global styles.
 
 ## How does it work?
